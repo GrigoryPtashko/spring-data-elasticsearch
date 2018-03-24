@@ -294,7 +294,7 @@ public interface ElasticsearchOperations {
 	 * @param query
 	 * @return
 	 */
-	<T> List<String> queryForIds(SearchQuery query);
+	<T> List<String> queryForIds(SearchQuery query, Object... after);
 
 	/**
 	 * return number of elements found by given query

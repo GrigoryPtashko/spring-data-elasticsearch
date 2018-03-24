@@ -305,11 +305,22 @@ public class ElasticsearchTemplate implements ElasticsearchOperations, Applicati
 	}
 
 	@Override
-	public <T> List<String> queryForIds(SearchQuery query) {
-		SearchRequestBuilder request = prepareSearch(query).setQuery(query.getQuery());
+	public <T> List<String> queryForIds(SearchQuery query, Object... after) {
+		SearchRequestBuilder request =
+			after.length == 0 ?
+				prepareSearch(query).setQuery(query.getQuery()) :
+				prepareSearch(query).setQuery(query.getQuery()).searchAfter(after);
+		if (query.getElasticsearchSorts() != null) {
+			for (SortBuilder sortBuilder : query.getElasticsearchSorts()) {
+				request.addSort(sortBuilder);
+			}
+		}
 		if (query.getFilter() != null) {
 			request.setPostFilter(query.getFilter());
 		}
+        if (logger.isDebugEnabled()) {
+            logger.debug("queryForIds query:\n" + request.toString());
+        }
 		SearchResponse response = getSearchResponse(request.execute());
 		return extractIds(response);
 	}
